@@ -2,11 +2,12 @@ package com.uc.ms_security.dto.session;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -15,11 +16,10 @@ public class SessionRequestDTO {
     private String token;
 
     @NotNull(message = "La fecha de expiración es obligatoria")
-    private Date expiration;
+    //solo permite que se ingrsen fechas futiras
+    @Future(message = "La fecha de expiración debe estar en el futuro")
+    private LocalDateTime expiration;
 
+    @Size(min = 6, max = 10, message = "El código 2FA debe tener entre 6 y 10 caracteres")
     private String code2FA;
-
-    @NotNull(message = "El usuario es obligatorio")
-    @Positive(message = "El ID del usuario debe ser positivo")
-    private Long userId;
 }

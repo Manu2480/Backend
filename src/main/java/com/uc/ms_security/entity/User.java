@@ -5,6 +5,9 @@ import lombok.Getter; // lombok: Es una libreria que en tiempo de ejecución sab
 import lombok.NoArgsConstructor; // lombok: También crea el constructor en tiempo de ejecución, entonces se activa cuando se van a crear los objetos
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /*Si hubiera que cambiar la base a una NoSQL hay que hacer de nuevo esta entidad y usar
 * los decoradores propios de la base NoSQL*/
 // decoradores: @ -> indican que eso se va a traducir como una tabla en bases de datos (relacional)
@@ -49,4 +52,22 @@ public class User {
             fetch = FetchType.LAZY
     )
     private Profile profile;
+
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<Session> sessions = new ArrayList<>();
+
+    public void addSession(Session session) {
+        sessions.add(session);
+        session.setUser(this);
+    }
+
+    public void removeSession(Session session) {
+        sessions.remove(session);
+        session.setUser(null);
+    }
 }

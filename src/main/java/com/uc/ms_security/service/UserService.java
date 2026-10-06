@@ -4,6 +4,7 @@ import com.uc.ms_security.dto.user.CreateUserDTO;
 import com.uc.ms_security.dto.user.UpdateUserDTO;
 import com.uc.ms_security.dto.user.UserDetailResponseDTO;
 import com.uc.ms_security.dto.user.UserResponseDTO;
+import com.uc.ms_security.dto.user.UserSessionsResponseDTO;
 import com.uc.ms_security.entity.User;
 import com.uc.ms_security.exception.ApplicationException;
 import com.uc.ms_security.exception.ErrorCase;
@@ -66,6 +67,16 @@ public class UserService {
                 );
 
         return userMapper.toDetailResponseDTO(user);//si todo esta okey retorna usuario con perfil
+    }
+
+    public UserSessionsResponseDTO findByIdAndSessions(Long id) {
+        User user = userRepository.findWithSessionsById(id)
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorCase.NOT_FOUND,
+                        "Usuario no encontrado con id: " + id
+                ));
+
+        return userMapper.toSessionsResponseDTO(user);
     }
 
     public UserResponseDTO findById(Long id) {

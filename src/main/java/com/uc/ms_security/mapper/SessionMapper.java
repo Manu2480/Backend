@@ -20,7 +20,11 @@ public class SessionMapper {
         return session;
     }
 
-    public void updateEntity(SessionRequestDTO dto, Session session, User user) {
+    public void updateEntity(
+            SessionRequestDTO dto,
+            Session session,
+            User user) {
+
         session.setToken(dto.getToken());
         session.setExpiration(dto.getExpiration());
         session.setCode2FA(dto.getCode2FA());
@@ -30,12 +34,17 @@ public class SessionMapper {
     public SessionResponseDTO toResponseDTO(Session session) {
         return new SessionResponseDTO(
                 session.getId(),
+                session.getToken(),
                 session.getExpiration(),
-                session.getUser().getId()
+                session.getCode2FA()
         );
     }
 
-    public List<SessionResponseDTO> toResponseDTOList(List<Session> sessions) {
-        return sessions.stream().map(this::toResponseDTO).toList();
+    public List<SessionResponseDTO> toResponseDTOList(
+            List<Session> sessions) {
+
+        return sessions.stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 }

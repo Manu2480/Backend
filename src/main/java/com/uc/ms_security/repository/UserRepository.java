@@ -25,4 +25,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findWithProfileById(
             Long id
     );
+
+    @EntityGraph(attributePaths = {"sessions"}) //hace referencia al atributo sessions de user
+    Optional<User> findWithSessionsById(Long id);
+
+    //Acá es donde hace el join, el join que se solicito desde el mapper
 }

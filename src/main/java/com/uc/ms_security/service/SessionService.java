@@ -25,33 +25,72 @@ public class SessionService {
     private final UserRepository userRepository;
     private final SessionMapper sessionMapper;
 
-    public SessionResponseDTO create(@Valid SessionRequestDTO dto) {
-        User user = findUser(dto.getUserId());
-        return sessionMapper.toResponseDTO(sessionRepository.save(sessionMapper.toEntity(dto, user)));
+    public SessionResponseDTO create(Long userId, @Valid SessionRequestDTO dto) {
+        return createForUser(findUser(userId), dto);
     }
 
-    public List<SessionResponseDTO> findAll() {
-        return sessionMapper.toResponseDTOList(sessionRepository.findAll());
+    public List<SessionResponseDTO> findAllByUserId(Long userId) {
+        findUser(userId);
+        return sessionMapper.toResponseDTOList(
+                sessionRepository.findAllByUserId(userId)
+        );
     }
 
-    public SessionResponseDTO findById(Long id) {
-        return sessionMapper.toResponseDTO(findSession(id));
+    public SessionResponseDTO findById(Long userId, Long sessionId) {
+        return sessionMapper.toResponseDTO(findSession(userId, sessionId));
     }
 
-    public SessionResponseDTO update(Long id, @Valid SessionRequestDTO dto) {
-        Session session = findSession(id);
-        User user = findUser(dto.getUserId());
+    public SessionResponseDTO update(
+            Long userId,
+            Long sessionId,
+            @Valid SessionRequestDTO dto) {
+
+        User user = findUser(userId);
+        return updateSession(findSession(userId, sessionId), dto, user);
+    }
+
+    public void delete(Long userId, Long sessionId) {
+        sessionRepository.delete(findSession(userId, sessionId));
+    }
+
+    private SessionResponseDTO createForUser(
+            User user,
+            SessionRequestDTO dto) {
+
+        ensureTokenAvailable(dto.getToken(), null);
+        Session session = sessionMapper.toEntity(dto, user);
+        return sessionMapper.toResponseDTO(sessionRepository.save(session));
+    }
+
+    private SessionResponseDTO updateSession(
+            Session session,
+            SessionRequestDTO dto,
+            User user) {
+
+        ensureTokenAvailable(dto.getToken(), session.getId());
         sessionMapper.updateEntity(dto, session, user);
         return sessionMapper.toResponseDTO(sessionRepository.save(session));
     }
 
-    public void delete(Long id) {
-        sessionRepository.delete(findSession(id));
+    private void ensureTokenAvailable(String token, Long sessionId) {
+        boolean alreadyExists = sessionId == null
+                ? sessionRepository.existsByToken(token)
+                : sessionRepository.existsByTokenAndIdNot(token, sessionId);
+
+        if (alreadyExists) {
+            throw new ApplicationException(
+                    ErrorCase.ALREADY_EXISTS,
+                    "El token ya está registrado"
+            );
+        }
     }
 
-    private Session findSession(Long id) {
-        return sessionRepository.findById(id).orElseThrow(() -> new ApplicationException(
-                ErrorCase.NOT_FOUND, "Sesión no encontrada con id: " + id));
+    private Session findSession(Long userId, Long sessionId) {
+        return sessionRepository.findByIdAndUserId(sessionId, userId)
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorCase.NOT_FOUND,
+                        "Sesión no encontrada para este usuario"
+                ));
     }
 
     private User findUser(Long id) {
