@@ -62,6 +62,7 @@ public class UserController {
         return userService.findByIdAndSessions(id);
     }
 
+    // este va activar el endpoint de rol
     @GetMapping("/{id}/detail-with-roles")
     public UserRolesResponseDTO findByIdAndRoles(
             @PathVariable Long id) {

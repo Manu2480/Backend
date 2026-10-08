@@ -81,6 +81,7 @@ public class UserService {
         return userMapper.toSessionsResponseDTO(user);
     }
 
+    // hace todo el join, invoco
     @Transactional(readOnly = true)
     public UserRolesResponseDTO findByIdAndRoles(Long id) {
         User user = userRepository.findWithRolesById(id)
@@ -89,6 +90,7 @@ public class UserService {
                         "Usuario no encontrado con id: " + id
                 ));
 
+        //va a armar el usuario con sus roles segun le indica el dto
         return userMapper.toRolesResponseDTO(user);
     }
 
