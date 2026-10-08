@@ -1,6 +1,7 @@
 package com.uc.ms_security.service;
 
-import com.uc.ms_security.dto.userRole.UserRoleRequestDTO;
+import com.uc.ms_security.dto.userRole.AssignRoleRequestDTO;
+import com.uc.ms_security.dto.userRole.RoleUserResponseDTO;
 import com.uc.ms_security.dto.userRole.UserRoleResponseDTO;
 import com.uc.ms_security.entity.Role;
 import com.uc.ms_security.entity.User;
@@ -14,6 +15,7 @@ import com.uc.ms_security.repository.UserRoleRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
@@ -28,35 +30,60 @@ public class UserRoleService {
     private final RoleRepository roleRepository;
     private final UserRoleMapper userRoleMapper;
 
-    public UserRoleResponseDTO create(@Valid UserRoleRequestDTO dto) {
+    //hace que se deban cumplir todas las caracteristicas de la 
+    // función, para hacer la transacción en la base de datos
+    @Transactional 
+    public UserRoleResponseDTO assign(@Valid AssignRoleRequestDTO dto) {
         User user = findUser(dto.getUserId());
         Role role = findRole(dto.getRoleId());
-        return userRoleMapper.toResponseDTO(userRoleRepository.save(userRoleMapper.toEntity(user, role)));
+
+        if (userRoleRepository.existsByUserIdAndRoleId(
+                dto.getUserId(),
+                dto.getRoleId()
+        )) {
+            throw new ApplicationException(
+                    ErrorCase.ALREADY_EXISTS,
+                    "El usuario ya tiene asignado ese rol"
+            );
+        }
+
+        UserRole userRole = new UserRole();
+        user.addUserRole(userRole);
+        role.addUserRole(userRole);
+        return userRoleMapper.toResponseDTO(userRoleRepository.save(userRole));
     }
 
+    @Transactional(readOnly = true)
     public List<UserRoleResponseDTO> findAll() {
         return userRoleMapper.toResponseDTOList(userRoleRepository.findAll());
     }
 
-    public UserRoleResponseDTO findById(Long id) {
-        return userRoleMapper.toResponseDTO(findUserRole(id));
+    @Transactional(readOnly = true)
+    public List<UserRoleResponseDTO> findByUserId(Long userId) {
+        findUser(userId);
+        return userRoleMapper.toResponseDTOList(
+                userRoleRepository.findAllByUserId(userId)
+        );
     }
 
-    public UserRoleResponseDTO update(Long id, @Valid UserRoleRequestDTO dto) {
-        UserRole userRole = findUserRole(id);
-        User user = findUser(dto.getUserId());
-        Role role = findRole(dto.getRoleId());
-        userRoleMapper.updateEntity(userRole, user, role);
-        return userRoleMapper.toResponseDTO(userRoleRepository.save(userRole));
+    @Transactional(readOnly = true)
+    public List<RoleUserResponseDTO> findByRoleId(Long roleId) {
+        findRole(roleId);
+        return userRoleMapper.toRoleUserResponseDTOList(
+                userRoleRepository.findAllByRoleId(roleId)
+        );
     }
 
-    public void delete(Long id) {
-        userRoleRepository.delete(findUserRole(id));
-    }
-
-    private UserRole findUserRole(Long id) {
-        return userRoleRepository.findById(id).orElseThrow(() -> new ApplicationException(
-                ErrorCase.NOT_FOUND, "Asignación de rol no encontrada con id: " + id));
+    @Transactional
+    public void delete(Long userId, Long roleId) {
+        UserRole userRole = userRoleRepository.findByUserIdAndRoleId(userId, roleId)
+                .orElseThrow(() -> new ApplicationException(
+                        ErrorCase.NOT_FOUND,
+                        "Asignación de rol no encontrada"
+                ));
+        userRole.getUser().removeUserRole(userRole);
+        userRole.getRole().removeUserRole(userRole);
+        userRoleRepository.delete(userRole);
     }
 
     private User findUser(Long id) {

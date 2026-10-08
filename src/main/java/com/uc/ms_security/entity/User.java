@@ -70,4 +70,21 @@ public class User {
         sessions.remove(session);
         session.setUser(null);
     }
+
+    public void addUserRole(UserRole userRole) {
+        userRoles.add(userRole);
+        userRole.setUser(this);
+    }
+
+    public void removeUserRole(UserRole userRole) {
+        userRoles.remove(userRole);
+    }
+
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<UserRole> userRoles = new ArrayList<>();
 }

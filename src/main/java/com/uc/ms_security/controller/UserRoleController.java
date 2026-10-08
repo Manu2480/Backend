@@ -1,6 +1,7 @@
 package com.uc.ms_security.controller;
 
-import com.uc.ms_security.dto.userRole.UserRoleRequestDTO;
+import com.uc.ms_security.dto.userRole.AssignRoleRequestDTO;
+import com.uc.ms_security.dto.userRole.RoleUserResponseDTO;
 import com.uc.ms_security.dto.userRole.UserRoleResponseDTO;
 import com.uc.ms_security.service.UserRoleService;
 import jakarta.validation.Valid;
@@ -19,8 +20,9 @@ public class UserRoleController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserRoleResponseDTO create(@Valid @RequestBody UserRoleRequestDTO dto) {
-        return userRoleService.create(dto);
+    public UserRoleResponseDTO assign(
+            @Valid @RequestBody AssignRoleRequestDTO dto) {
+        return userRoleService.assign(dto);
     }
 
     @GetMapping
@@ -28,19 +30,23 @@ public class UserRoleController {
         return userRoleService.findAll();
     }
 
-    @GetMapping("/{id}")
-    public UserRoleResponseDTO findById(@PathVariable Long id) {
-        return userRoleService.findById(id);
+    @GetMapping("/users/{userId}")
+    public List<UserRoleResponseDTO> findByUserId(
+            @PathVariable Long userId) {
+        return userRoleService.findByUserId(userId);
     }
 
-    @PutMapping("/{id}")
-    public UserRoleResponseDTO update(@PathVariable Long id, @Valid @RequestBody UserRoleRequestDTO dto) {
-        return userRoleService.update(id, dto);
+    @GetMapping("/roles/{roleId}")
+    public List<RoleUserResponseDTO> findByRoleId(
+            @PathVariable Long roleId) {
+        return userRoleService.findByRoleId(roleId);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{userId}/{roleId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        userRoleService.delete(id);
+    public void delete(
+            @PathVariable Long userId,
+            @PathVariable Long roleId) {
+        userRoleService.delete(userId, roleId);
     }
 }

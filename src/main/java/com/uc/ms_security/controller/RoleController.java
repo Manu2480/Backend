@@ -1,7 +1,7 @@
 package com.uc.ms_security.controller;
 
 import com.uc.ms_security.dto.role.RoleRequestDTO;
-import com.uc.ms_security.entity.Role;
+import com.uc.ms_security.dto.role.RoleResponseDTO;
 import com.uc.ms_security.service.RoleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,22 +19,24 @@ public class RoleController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Role create(@Valid @RequestBody RoleRequestDTO dto) {
+    public RoleResponseDTO create(@Valid @RequestBody RoleRequestDTO dto) {
         return roleService.create(dto);
     }
 
     @GetMapping
-    public List<Role> findAll() {
+    public List<RoleResponseDTO> findAll() {
         return roleService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Role findById(@PathVariable Long id) {
+    public RoleResponseDTO findById(@PathVariable Long id) {
         return roleService.findById(id);
     }
 
     @PutMapping("/{id}")
-    public Role update(@PathVariable Long id, @Valid @RequestBody RoleRequestDTO dto) {
+    public RoleResponseDTO update(
+            @PathVariable Long id,
+            @Valid @RequestBody RoleRequestDTO dto) {
         return roleService.update(id, dto);
     }
 

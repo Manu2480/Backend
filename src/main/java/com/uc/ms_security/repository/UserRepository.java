@@ -29,5 +29,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @EntityGraph(attributePaths = {"sessions"}) //hace referencia al atributo sessions de user
     Optional<User> findWithSessionsById(Long id);
 
+    //Se encarga de hacer el join con la intermedia (que usuarios tienen x rol)
+    //no es un join simple, es un doble join
+    @EntityGraph(attributePaths = {"userRoles", "userRoles.role"})
+    Optional<User> findWithRolesById(Long id);
+
     //Acá es donde hace el join, el join que se solicito desde el mapper
 }

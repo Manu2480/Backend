@@ -7,12 +7,12 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserRoleRequestDTO {
-    @NotNull(message = "El usuario es obligatorio")
+public class AssignRoleRequestDTO {
+    @NotNull(message = "El identificador del usuario es obligatorio")
     @Positive(message = "El ID del usuario debe ser positivo")
     private Long userId;
 
-    @NotNull(message = "El rol es obligatorio")
+    @NotNull(message = "El identificador del rol es obligatorio")
     @Positive(message = "El ID del rol debe ser positivo")
     private Long roleId;
 }

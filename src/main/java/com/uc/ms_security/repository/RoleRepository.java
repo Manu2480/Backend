@@ -6,4 +6,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
+
+    //si un rol ya existe
+    boolean existsByNameIgnoreCase(String name);
+
+    //si existe un nombre ignorando su identificador
+    boolean existsByNameIgnoreCaseAndIdNot(String name, Long id);
 }
