@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
+@SpringBootTest(properties = "security.jwt.secret=test-only-jwt-secret-with-at-least-32-bytes")
 @Transactional
 class UserRoleRelationshipTests {
 

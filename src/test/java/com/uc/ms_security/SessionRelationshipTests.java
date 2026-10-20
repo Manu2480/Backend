@@ -22,7 +22,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest
+@SpringBootTest(properties = "security.jwt.secret=test-only-jwt-secret-with-at-least-32-bytes")
 @Transactional
 class SessionRelationshipTests {
 
