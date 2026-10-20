@@ -27,13 +27,13 @@ public class UserMapper {
     private final UserRoleMapper userRoleMapper;
 
     // Metodo en que entra un DTO y crea una ENTITY
-    public User toEntity(CreateUserDTO dto) {
+    public User toEntity(CreateUserDTO dto, String encodedPassword) {
         User user = new User(); //instancio, manipulamos la tabla
 
         //tomamos los datos
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
-        user.setPassword(dto.getPassword());
+        user.setPassword(encodedPassword);
 
         //retornamos el usuario
         return user;
@@ -43,10 +43,6 @@ public class UserMapper {
     public void updateEntity(UpdateUserDTO dto, User user) {
         user.setName(dto.getName());
         user.setEmail(dto.getEmail());
-
-        if (dto.getPassword() != null) {
-            user.setPassword(dto.getPassword());
-        }
     }
 
     // Metodo para mostrar un usuario (crea un objeto de tipo respuesta, no manda la contraseña)

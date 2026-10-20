@@ -13,6 +13,7 @@ import com.uc.ms_security.mapper.UserMapper;
 import com.uc.ms_security.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ public class UserService {
     /* Empieza la inyección de dependencias (final es una constante en java)*/
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     // llega el DTO de la creación (si algo fallo ahí rechaza la petición)
     public UserResponseDTO create(CreateUserDTO dto) {
@@ -36,7 +38,8 @@ public class UserService {
             );
         } //si eso no se levanta entonces se crea
         // lo paso a entiedad con ayuda del maper
-        User user = userMapper.toEntity(dto); // este aun no tiene id
+        String encodedPassword = passwordEncoder.encode(dto.getPassword());
+        User user = userMapper.toEntity(dto, encodedPassword); // este aun no tiene id
         User savedUser = userRepository.save(user); // ey repo, haz el metodo save(si no existe lo crea si ya existe lo actualiza)
         return userMapper.toResponseDTO(savedUser); // convierta el objeto en fichitas, pero le quita la contraseña para mostrarselo al usuario
     }
@@ -109,7 +112,10 @@ public class UserService {
             );
         }
         // con los datos que llegaron en el dto lo convierto a usuario
-        userMapper.updateEntity(dto, user); // este user es el ya se esta actualizando, aca internamente el objeto ya se cambio por eso no hay que retornarlo
+        userMapper.updateEntity(dto, user);
+        if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
         User updatedUser = userRepository.save(user);
         return userMapper.toResponseDTO(updatedUser);
     }
